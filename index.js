@@ -3,7 +3,8 @@ const cTable = require('console.table')
 
 
 
-const db = require("./db/connection")
+const db = require("./db/connection");
+const { fetchAsyncQuestionProperty } = require('inquirer/lib/utils/utils');
 
 
 function basicInfo() {
@@ -78,20 +79,23 @@ function basicInfo() {
             }
           ])
             .then(response => {
-              const internMember = new Intern(responses.name, responses.employeeid, responses.emailAddress, responses.position, response.school)
-              internMembers.push(internMember)
-              console.log(internMember)
-              moreUsers()
+              const sql=`INSERT INTO department (name) VALUES (?)`
+             db.query(sql, response.department, (err, result) =>{
+               if (err)
+               throw err
+               console.table(result);
+               basicInfo()
+             })
             })
         }
         else if (responses.position === "add a role") {
           inquirer.prompt([
             {
               type: 'input',
-              name: 'rolename',
+              name: 'title',
               message: "What is the name of the new Role?",
-              validate:  rolename => {
-                if (rolename) {
+              validate:  title => {
+                if (title) {
                   return true;
                 } else {
                   console.log("Please enter the Role Name")
@@ -101,10 +105,10 @@ function basicInfo() {
             },
             {
               type: 'input',
-              name: 'rolesalary',
+              name: 'salary',
               message: "What is the salary of the new Role?",
-              validate:  rolesalary => {
-                if (rolesalary) {
+              validate:  salary => {
+                if (salary) {
                   return true;
                 } else {
                   console.log("Please enter the Role Salary")
@@ -114,10 +118,10 @@ function basicInfo() {
             },
             {
               type: 'input',
-              name: 'roledepartment',
+              name: 'department_id',
               message: "What is the Department of the new Role?",
-              validate:  roledepartment => {
-                if (roledepartment) {
+              validate:  department_id => {
+                if (department_id) {
                   return true;
                 } else {
                   console.log("Please enter the Role Department")
@@ -127,10 +131,13 @@ function basicInfo() {
             }
           ])
             .then(response => {
-              const internMember = new Intern(responses.name, responses.employeeid, responses.emailAddress, responses.position, response.school)
-              internMembers.push(internMember)
-              console.log(internMember)
-              moreUsers()
+             const sql = `INSERT INTO role SET ?`;
+             db.query(sql, response, (err, result) => {
+               if (err)
+               throw err
+               console.log(result);
+               basicInfo()
+             })
             })
         }
 
@@ -138,10 +145,10 @@ function basicInfo() {
           inquirer.prompt([
             {
               type: 'input',
-              name: 'employeeFirst',
+              name: 'first_name',
               message: "What employee's first name?",
-              validate:  employeeFirst => {
-                if (employeeFirst) {
+              validate:  first_name => {
+                if (first_name) {
                   return true;
                 } else {
                   console.log("Please enter employee's first name.")
@@ -151,10 +158,10 @@ function basicInfo() {
             },
             {
               type: 'input',
-              name: 'employeeLast',
+              name: 'last_name',
               message: "What employee's last name?",
-              validate:  employeeLast => {
-                if (employeeLast) {
+              validate:  last_name => {
+                if (last_name) {
                   return true;
                 } else {
                   console.log("Please enter employee's last name.")
@@ -164,10 +171,10 @@ function basicInfo() {
             },
             {
               type: 'input',
-              name: 'employeeRole',
+              name: 'role_id',
               message: "What employee's Role?",
-              validate:  employeeRole => {
-                if (employeeRole) {
+              validate:  role_id => {
+                if (role_id) {
                   return true;
                 } else {
                   console.log("Please enter employee's role.")
@@ -177,10 +184,10 @@ function basicInfo() {
             },
             {
               type: 'input',
-              name: 'employeeManager',
+              name: 'manager_id',
               message: "Whom is the employee's manager?",
-              validate:  employeeManager => {
-                if (employeeManager) {
+              validate:  manager_id => {
+                if (manager_id) {
                   return true;
                 } else {
                   console.log("Please enter employee's manager.")
@@ -189,11 +196,14 @@ function basicInfo() {
               }
             }
           ])
-            .then(response => {
-              const internMember = new Intern(responses.name, responses.employeeid, responses.emailAddress, responses.position, response.school)
-              internMembers.push(internMember)
-              console.log(internMember)
-              moreUsers()
+            .then((response) => {
+             const sql = `INSERT INTO employee SET ?`;
+             db.query(sql, response,(err, result) =>{
+               if (err)
+               throw err
+               console.log(result);
+               basicInfo()
+             })
             })
         }
 
@@ -201,23 +211,39 @@ function basicInfo() {
           inquirer.prompt([
             {
               type: 'input',
-              name: 'updateEmployee',
-              message: "Which employee do you want to update?",
-              validate:  schoolInput => {
-                if (schoolInput) {
+              name: 'employee',
+              message: "Which employee ID do you want to update?",
+              validate:  employee => {
+                if (employee) {
                   return true;
                 } else {
-                  console.log("Please enter the School Name")
+                  console.log("Please enter employee by ID")
+                  return false;
+                }
+              }
+            },
+            {
+              type: 'input',
+              name: 'role_id',
+              message: "What is the employee's new role by ID?",
+              validate:  role_id => {
+                if (role_id) {
+                  return true;
+                } else {
+                  console.log("Please enter employee new role by ID.")
                   return false;
                 }
               }
             }
           ])
-            .then(response => {
-              const internMember = new Intern(responses.name, responses.employeeid, responses.emailAddress, responses.position, response.school)
-              internMembers.push(internMember)
-              console.log(internMember)
-              moreUsers()
+            .then((response) => {
+             const sql = `UPDATE employee SET role_id = ? WHERE id = ?`;
+             db.query(sql,[response.role_id, response.employee], (err, result) =>{
+               if (err)
+               throw err
+               console.table(result);
+               basicInfo()
+             })
             })
         }
       }); /// end of first inqurier with basic questions.
@@ -226,25 +252,7 @@ function basicInfo() {
   
   
   
-  /// ask if user wants to add more employees or stop
-  function moreUsers() {
-    inquirer.prompt([
-      {
-          type:'confirm',
-          name: 'moreEmployees',
-          message:'Do you want to add more Employees?',
-          default: false
-      }
-  ])
-    .then(moreResponse => {
-      if (moreResponse.moreEmployees === true){
-      basicInfo();
-      } else {
-             writeFile(managerMembers, engineerMembers, internMembers)
-      }
-    })
-  }
-  
+
   
   
   
