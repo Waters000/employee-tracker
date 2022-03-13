@@ -119,12 +119,12 @@ function basicInfo() {
             {
               type: 'input',
               name: 'department_id',
-              message: "What is the Department of the new Role?",
+              message: "What is the department ID of the new Role?",
               validate:  department_id => {
                 if (department_id) {
                   return true;
                 } else {
-                  console.log("Please enter the Role Department")
+                  console.log("Please enter the Department ID for the role")
                   return false;
                 }
               }
@@ -172,12 +172,12 @@ function basicInfo() {
             {
               type: 'input',
               name: 'role_id',
-              message: "What employee's Role?",
+              message: "What employee's Role ID?",
               validate:  role_id => {
                 if (role_id) {
                   return true;
                 } else {
-                  console.log("Please enter employee's role.")
+                  console.log("Please enter employee's role ID.")
                   return false;
                 }
               }
@@ -185,12 +185,12 @@ function basicInfo() {
             {
               type: 'input',
               name: 'manager_id',
-              message: "Whom is the employee's manager?",
+              message: "Whom is the employee's manager ID?",
               validate:  manager_id => {
                 if (manager_id) {
                   return true;
                 } else {
-                  console.log("Please enter employee's manager.")
+                  console.log("Please enter employee's manager ID.")
                   return false;
                 }
               }
