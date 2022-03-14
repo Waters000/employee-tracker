@@ -1,13 +1,19 @@
 const inquirer = require('inquirer');
 const cTable = require('console.table')
 
+const {getDepartment} = require("./routes/apiRoutes/departmentRoutes")
+const {getRoles} = require("./routes/apiRoutes/roleRoutes")
+const {getEmployees} = require("./routes/apiRoutes/employeeRoutes")
+
+
 
 
 const db = require("./db/connection");
-const { fetchAsyncQuestionProperty } = require('inquirer/lib/utils/utils');
-
+const employeesArray = [];
+const roleArray = [];
 
 function basicInfo() {
+  
   
     inquirer.prompt([
   
@@ -30,37 +36,49 @@ function basicInfo() {
       .then(responses => {
         if (responses.position === "view all departments") {
        // console.log("get departments")
-       
-        const sql = `SELECT * FROM department`          
-        db.query(sql, (err, result) => {
-          if (err)
-            throw err
-            console.table(result)  
-          basicInfo()
-        });
+       getDepartment()
+       basicInfo()
+        // const sql = `SELECT * FROM department`          
+        // db.query(sql, (err, result) => {
+        //   if (err)
+        //     throw err
+        //     console.table(result)  
+        //   basicInfo()
+        // });
       
         
-  
-        
         } else if (responses.position === "view all roles") {
-          console.log("show all roles")
-          const sql = `SELECT * FROM role`          
-          db.query(sql, (err, result) => {
-            if (err)
-              throw err
-              console.table(result)  
+            getRoles()
             basicInfo()
-          });
+          //console.log("show all roles")
+          // const sql = `SELECT * FROM role
+          // LEFT JOIN department ON department.id = role.department_id`          
+          // db.query(sql, (err, result) => {
+          //   if (err)
+          //     throw err
+          //     result.forEach(({id})=>{
+          //       roleArray.push(id,)
+          //     }) 
+          //   basicInfo()
+          // });
 
 
         } else if (responses.position === "view all employees") {
-          const sql = `SELECT * FROM employee`          
-        db.query(sql, (err, result) => {
-          if (err)
-            throw err
-            console.table(result)  
+          getEmployees()
           basicInfo()
-        });
+        //   const sql = `SELECT * FROM employee
+        //   LEFT JOIN role ON role.id = employee.role_id`          
+        // db.query(sql, (err, result) => {
+        //   if (err)
+        //     throw err;
+        //     console.table(result)
+        //     result.forEach(({first_name})=>{
+        //       employeesArray.push(first_name)
+        //     })
+
+        //     console.log(employeesArray)
+        //   basicInfo()
+        // });
         }
         else if (responses.position === "add a department") {
           inquirer.prompt([
@@ -83,7 +101,8 @@ function basicInfo() {
              db.query(sql, response.department, (err, result) =>{
                if (err)
                throw err
-               console.table(result);
+               console.table("Department Added");
+               getDepartment()
                basicInfo()
              })
             })
@@ -135,7 +154,8 @@ function basicInfo() {
              db.query(sql, response, (err, result) => {
                if (err)
                throw err
-               console.log(result);
+               console.log("Role added to Table successful")
+               console.table(result);
                basicInfo()
              })
             })
@@ -208,11 +228,13 @@ function basicInfo() {
         }
 
         else if (responses.position === "update an employee role") {
+          
           inquirer.prompt([
             {
-              type: 'input',
-              name: 'employee',
-              message: "Which employee ID do you want to update?",
+              type: 'list',
+             name: 'employee',
+              message: "Which employee do you want to update (Must first view employees and roles to load first)?",
+              choices: employeesArray,
               validate:  employee => {
                 if (employee) {
                   return true;
@@ -222,10 +244,12 @@ function basicInfo() {
                 }
               }
             },
+         
             {
-              type: 'input',
-              name: 'role_id',
+              type: 'list',
+              name: 'title',
               message: "What is the employee's new role by ID?",
+              choices: roleArray,
               validate:  role_id => {
                 if (role_id) {
                   return true;
@@ -237,11 +261,13 @@ function basicInfo() {
             }
           ])
             .then((response) => {
-             const sql = `UPDATE employee SET role_id = ? WHERE id = ?`;
-             db.query(sql,[response.role_id, response.employee], (err, result) =>{
+             const sql = `UPDATE employee SET first_name = ? WHERE id = ?`;
+             db.query(sql,[response.first_name, response.id], (err, result) =>{
                if (err)
                throw err
-               console.table(result);
+               console.log("employee updated");
+               console.table(result)
+               viewRoles()
                basicInfo()
              })
             })
@@ -250,11 +276,22 @@ function basicInfo() {
   
   };
   
+ 
   
-  
-
-  
-  
+        const viewRoles = () => {
+        
+          const sql = `SELECT * FROM employee
+          LEFT JOIN role ON role.id = employee.role_id` 
+         
+          db.query(sql, (err, result) => {
+            if (err)
+              throw err
+              console.table(result)  
+            
+           
+            })  
+         
+        };
   
   basicInfo()
   
