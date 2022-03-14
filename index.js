@@ -219,7 +219,8 @@ function basicInfo() {
              db.query(sql, response,(err, result) =>{
                if (err)
                throw err
-               console.log(result);
+               console.log("Employee added to Table successful")
+               console.table(result);
                basicInfo()
              })
             })
