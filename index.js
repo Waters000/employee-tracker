@@ -2,8 +2,8 @@ const inquirer = require('inquirer');
 const cTable = require('console.table')
 
 const {getDepartment} = require("./routes/apiRoutes/departmentRoutes")
-const {getRoles} = require("./routes/apiRoutes/roleRoutes")
-const {getEmployees} = require("./routes/apiRoutes/employeeRoutes")
+//const {getRoles} = require("./routes/apiRoutes/roleRoutes")
+//const {getEmployees} = require("./routes/apiRoutes/employeeRoutes")
 
 
 
@@ -13,7 +13,7 @@ const employeesArray = [];
 const roleArray = [];
 
 function basicInfo() {
-  
+ 
   
     inquirer.prompt([
   
@@ -35,50 +35,48 @@ function basicInfo() {
     ])
       .then(responses => {
         if (responses.position === "view all departments") {
-       // console.log("get departments")
-       getDepartment()
-       basicInfo()
-        // const sql = `SELECT * FROM department`          
-        // db.query(sql, (err, result) => {
-        //   if (err)
-        //     throw err
-        //     console.table(result)  
-        //   basicInfo()
-        // });
+    
+        const sql = `SELECT * FROM department`          
+        db.query(sql, (err, result) => {
+          if (err)
+            throw err
+            console.table(result)  
+          basicInfo()
+        });
       
         
         } else if (responses.position === "view all roles") {
-            getRoles()
+        
+          console.log("show all roles")
+          const sql = `SELECT * FROM role
+          LEFT JOIN department ON department.id = role.department_id`          
+          db.query(sql, (err, result) => {
+            if (err)
+              throw err
+          
+              console.table(result)  
+              result.forEach(({id})=>{
+                roleArray.push(id,)
+              }) 
             basicInfo()
-          //console.log("show all roles")
-          // const sql = `SELECT * FROM role
-          // LEFT JOIN department ON department.id = role.department_id`          
-          // db.query(sql, (err, result) => {
-          //   if (err)
-          //     throw err
-          //     result.forEach(({id})=>{
-          //       roleArray.push(id,)
-          //     }) 
-          //   basicInfo()
-          // });
+          });
 
 
         } else if (responses.position === "view all employees") {
-          getEmployees()
-          basicInfo()
-        //   const sql = `SELECT * FROM employee
-        //   LEFT JOIN role ON role.id = employee.role_id`          
-        // db.query(sql, (err, result) => {
-        //   if (err)
-        //     throw err;
-        //     console.table(result)
-        //     result.forEach(({first_name})=>{
-        //       employeesArray.push(first_name)
-        //     })
+          
+          const sql = `SELECT * FROM employee
+          LEFT JOIN role ON role.id = employee.role_id`          
+        db.query(sql, (err, result) => {
+          if (err)
+            throw err;
+            console.table(result)
+            result.forEach(({first_name})=>{
+              employeesArray.push(first_name)
+            })
 
-        //     console.log(employeesArray)
-        //   basicInfo()
-        // });
+            console.log(employeesArray)
+          basicInfo()
+        });
         }
         else if (responses.position === "add a department") {
           inquirer.prompt([
